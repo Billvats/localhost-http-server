@@ -101,10 +101,10 @@ impl HttpRequest {
             }
         }
 
-        if let Some(ext) = route.cgi_extension.as_deref() {
-            if self.path.ends_with(ext) {
-                return self.handle_cgi(&self.path, route, client);
-            }
+        if let Some(ext) = route.cgi_extension.as_deref()
+            && self.path.ends_with(ext)
+        {
+            return self.handle_cgi(&self.path, route, client);
         }
 
         let file_path = match self.resolve_get_file_path(route, server) {
@@ -141,16 +141,16 @@ impl HttpRequest {
         server: &ServerConfig,
         client: &mut Client,
     ) -> RouteAction {
-        if let Some(ext) = route.cgi_extension.as_deref() {
-            if self.path.ends_with(ext) {
-                return self.handle_cgi(&self.path, route, client);
-            }
+        if let Some(ext) = route.cgi_extension.as_deref()
+            && self.path.ends_with(ext)
+        {
+            return self.handle_cgi(&self.path, route, client);
         }
 
-        if let Some(content_type) = self.headers.get("Content-Type") {
-            if content_type.contains("multipart/form-data") {
-                return RouteAction::Immediate(self.handle_uploaded_file(route));
-            }
+        if let Some(content_type) = self.headers.get("Content-Type")
+            && content_type.contains("multipart/form-data")
+        {
+            return RouteAction::Immediate(self.handle_uploaded_file(route));
         }
         RouteAction::Immediate(HttpResponseError::new_err_response_with_pages(
             400,

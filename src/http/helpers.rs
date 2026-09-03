@@ -245,16 +245,16 @@ impl HttpRequest {
                     libc::_exit(1);
                 }
 
-                if let Some(content_type) = self.headers.get("Content-Type") {
-                    if !set_env("CONTENT_TYPE", content_type) {
-                        libc::_exit(1);
-                    }
+                if let Some(content_type) = self.headers.get("Content-Type")
+                    && !set_env("CONTENT_TYPE", content_type)
+                {
+                    libc::_exit(1);
                 }
 
-                if let Some(session_id_value) = session_id.as_ref() {
-                    if !set_env("SESSION_ID", session_id_value) {
-                        libc::_exit(1);
-                    }
+                if let Some(session_id_value) = session_id.as_ref()
+                    && !set_env("SESSION_ID", session_id_value)
+                {
+                    libc::_exit(1);
                 }
 
                 let program = match CString::new("python3") {

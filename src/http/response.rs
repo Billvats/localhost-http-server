@@ -21,13 +21,13 @@ impl HttpResponseError {
             ""
         };
 
-        if let Some(path) = custom_error_page {
-            if let Ok(content) = std::fs::read_to_string(path) {
-                return content
-                    .replace("{{status_code}}", &status_code.to_string())
-                    .replace("{{status_text}}", body)
-                    .replace("{{extra_html}}", extra_html);
-            }
+        if let Some(path) = custom_error_page
+            && let Ok(content) = std::fs::read_to_string(path)
+        {
+            return content
+                .replace("{{status_code}}", &status_code.to_string())
+                .replace("{{status_text}}", body)
+                .replace("{{extra_html}}", extra_html);
         }
 
         ERROR_TEMPLATE

@@ -191,26 +191,21 @@ pub fn run(listeners: Vec<TcpListener>, config: &AppConfig) {
                                     }
                                 };
                                 // 6. send the RESPONSE back to the client and remove the processed request from the client's buffer
-                                if !action.is_empty() {
-                                    if let Err(e) = client.socket.write_all(&action) {
-                                        eprintln!("Failed to send response to client: {}", e);
-                                        let client_remove_result = unsafe {
-                                            epoll_ctl(
-                                                epoll_fd,
-                                                EPOLL_CTL_DEL,
-                                                fd,
-                                                std::ptr::null_mut(),
-                                            )
-                                        };
-                                        if client_remove_result < 0 {
-                                            eprintln!(
-                                                "Failed to remove client from epoll after write error"
-                                            );
-                                        }
-                                        clients.retain(|c| c.socket.as_raw_fd() != fd);
-                                        break;
-                                        // with write_all() we send the RESPONSE (in bytes) to the client
+                                if !action.is_empty()
+                                    && let Err(e) = client.socket.write_all(&action)
+                                {
+                                    eprintln!("Failed to send response to client: {}", e);
+                                    let client_remove_result = unsafe {
+                                        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, std::ptr::null_mut())
+                                    };
+                                    if client_remove_result < 0 {
+                                        eprintln!(
+                                            "Failed to remove client from epoll after write error"
+                                        );
                                     }
+                                    clients.retain(|c| c.socket.as_raw_fd() != fd);
+                                    break;
+                                    // with write_all() we send the RESPONSE (in bytes) to the client
                                 }
                                 client.buffer.drain(..end);
                                 println!("Request from client fd {}", fd);
@@ -361,10 +356,10 @@ fn build_http_response_from_cgi_output(output: &[u8]) -> Vec<u8> {
             let value_trimmed = value.trim().to_string();
 
             if key_trimmed.eq_ignore_ascii_case("Status") {
-                if let Some(code_str) = value_trimmed.split_whitespace().next() {
-                    if let Ok(code) = code_str.parse::<u16>() {
-                        status_code = code;
-                    }
+                if let Some(code_str) = value_trimmed.split_whitespace().next()
+                    && let Ok(code) = code_str.parse::<u16>()
+                {
+                    status_code = code;
                 }
             } else if !key_trimmed.eq_ignore_ascii_case("Content-Length") {
                 out_headers.push((key_trimmed, value_trimmed));
