@@ -1,0 +1,5 @@
+/target/
+*.log
+test_upload.txt
+.DS_Store
+Thumbs.db
